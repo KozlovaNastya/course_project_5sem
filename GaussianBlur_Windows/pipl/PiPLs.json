@@ -1,0 +1,90 @@
+{
+  "PiPLs": [
+    {
+      "Kind": "Filter",
+      "Name": "Gaussian Blur 3x3",
+      "Category": "Course Project",
+      "Version": 4,
+      "SubVersion": 0,
+      "ComponentVersionShortNum": 26,
+      "ComponentVersionMinorRevNum": 1,
+      "ComponentVersionDotRevNum": 0,
+      "ComponentName": "GaussianBlur3x3",
+      "CodeMacARM64": "PluginMain",
+      "CodeMacIntel64": "PluginMain",
+      "CodeEntryPointWin64": "PluginMain",
+      "SupportedModes": {
+        "Bitmap": false,
+        "GrayScale": true,
+        "IndexedColor": false,
+        "RGBColor": true,
+        "CMYKColor": true,
+        "HSLColor": true,
+        "HSBColor": true,
+        "Multichannel": true,
+        "Duotone": true,
+        "LABColor": true
+      },
+      "EnableInfo": "in (PSHOP_ImageMode, RGBMode, GrayScaleMode, CMYKMode, HSLMode, HSBMode, MultichannelMode, DuotoneMode, LabMode, RGB48Mode, Gray16Mode) || PSHOP_ImageDepth == 16 || PSHOP_ImageDepth == 32",
+      "FilterLayerSupport": true,
+      "FilterCaseInfo": [
+        {
+          "InputHandling": "InWhiteMat",
+          "OutputHandling": "OutWhiteMat",
+          "WriteOutsideSelection": false,
+          "FiltersLayerMasks": true,
+          "WorksWithBlankData": true,
+          "DontCopySourceToDestination": false
+        },
+        {
+          "InputHandling": "InWhiteMat",
+          "OutputHandling": "OutWhiteMat",
+          "WriteOutsideSelection": false,
+          "FiltersLayerMasks": true,
+          "WorksWithBlankData": true,
+          "DontCopySourceToDestination": false
+        },
+        {
+          "InputHandling": "InWhiteMat",
+          "OutputHandling": "OutWhiteMat",
+          "WriteOutsideSelection": false,
+          "FiltersLayerMasks": true,
+          "WorksWithBlankData": true,
+          "DontCopySourceToDestination": false
+        },
+        {
+          "InputHandling": "InWhiteMat",
+          "OutputHandling": "OutWhiteMat",
+          "WriteOutsideSelection": false,
+          "FiltersLayerMasks": true,
+          "WorksWithBlankData": true,
+          "DontCopySourceToDestination": false
+        },
+        {
+          "InputHandling": "InWhiteMat",
+          "OutputHandling": "OutWhiteMat",
+          "WriteOutsideSelection": false,
+          "FiltersLayerMasks": true,
+          "WorksWithBlankData": true,
+          "DontCopySourceToDestination": false
+        },
+        {
+          "InputHandling": "InWhiteMat",
+          "OutputHandling": "OutWhiteMat",
+          "WriteOutsideSelection": false,
+          "FiltersLayerMasks": true,
+          "WorksWithBlankData": true,
+          "DontCopySourceToDestination": false
+        },
+        {
+          "InputHandling": "InWhiteMat",
+          "OutputHandling": "OutWhiteMat",
+          "WriteOutsideSelection": false,
+          "FiltersLayerMasks": true,
+          "WorksWithBlankData": true,
+          "DontCopySourceToDestination": false
+        }
+      ]
+    }
+  ]
+}

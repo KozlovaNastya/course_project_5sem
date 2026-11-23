@@ -1,0 +1,12 @@
+// Путь к Adobe Photoshop C++ SDK (папка pluginsdk).
+// По умолчанию SDK лежит рядом с папкой проекта:
+//     любая_папка/photoshop-cpp-sdk-main/pluginsdk
+//     любая_папка/GaussianBlur_macOS/GaussianBlur.xcodeproj
+// Сам SDK в архив не входит (лицензия Adobe) - распакуйте его отдельно.
+//
+// Другое расположение: создайте рядом файл PhotoshopSdk.local.xcconfig со строкой
+//     PHOTOSHOP_SDK_DIR = /полный/путь/к/photoshop-cpp-sdk-main/pluginsdk
+// либо передайте параметр: xcodebuild ... PHOTOSHOP_SDK_DIR=/полный/путь/pluginsdk
+PHOTOSHOP_SDK_DIR = $(SRCROOT)/../photoshop-cpp-sdk-main/pluginsdk
+
+#include? "PhotoshopSdk.local.xcconfig"

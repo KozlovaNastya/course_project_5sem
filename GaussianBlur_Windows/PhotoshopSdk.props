@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Путь к Adobe Photoshop C++ SDK (папка pluginsdk). Порядок выбора:
+    1) свойство MSBuild:        msbuild /p:PhotoshopSdkDir=C:\sdk\photoshop-cpp-sdk-main\pluginsdk
+    2) переменная окружения:    PHOTOSHOP_SDK_DIR
+    3) по умолчанию:            ..\photoshop-cpp-sdk-main\pluginsdk  (папка SDK лежит рядом с этой папкой)
+  Сам SDK в архив не входит (лицензия Adobe) - его нужно распаковать отдельно.
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PhotoshopSdkDir Condition="'$(PhotoshopSdkDir)' == '' and '$(PHOTOSHOP_SDK_DIR)' != ''">$(PHOTOSHOP_SDK_DIR)</PhotoshopSdkDir>
+    <PhotoshopSdkDir Condition="'$(PhotoshopSdkDir)' == ''">$(MSBuildThisFileDirectory)..\photoshop-cpp-sdk-main\pluginsdk</PhotoshopSdkDir>
+    <PhotoshopSdkDir>$([MSBuild]::EnsureTrailingSlash('$(PhotoshopSdkDir)'))</PhotoshopSdkDir>
+  </PropertyGroup>
+</Project>
