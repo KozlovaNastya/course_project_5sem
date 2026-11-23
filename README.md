@@ -24,7 +24,7 @@ The filter is designed for the classic Adobe Photoshop Filter Plug-in API and is
 | Directory | Description |
 |---|---|
 | `GaussianBlur_Windows/` | Windows project for Visual Studio. Intended output: `.8bf` plug-in. |
-| `GaussianBlur_MacOS/` | macOS project for Xcode. Intended output: `.plugin` bundle. |
+| `GaussianBlur_macOS/` | macOS project for Xcode. Intended output: `.plugin` bundle. |
 | `docs/` | Course paper in PDF format. |
 
 Both platform projects contain the image-processing core, plug-in integration code, PiPL metadata, and tests.
@@ -49,7 +49,7 @@ The repository also includes the written course project:
 Choose the project for your target platform:
 
 - [Windows — build instructions](GaussianBlur_Windows/README_Windows.md)
-- [macOS — build instructions](GaussianBlur_MacOS/README_macOS.md)
+- [macOS — build instructions](GaussianBlur_macOS/README_macOS.md)
 
 The Adobe Photoshop SDK is not included in this repository. It must be obtained separately and configured before building the plug-in.
 
