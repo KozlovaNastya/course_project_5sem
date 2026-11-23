@@ -1,37 +1,64 @@
-# Gaussian Blur 3x3
+# Gaussian Blur 3×3 — Adobe Photoshop Filter Plug-in
 
-A classic Adobe Photoshop Filter Plug-in implemented in C++ using the Adobe Photoshop C++ SDK.
+A cross-platform C++ implementation of a classic Adobe Photoshop filter plug-in that applies a 3×3 Gaussian blur convolution.
 
-## Project Description
+The repository contains platform-specific project configurations for **Windows** and **macOS**, a shared image-processing implementation, independent tests, and the accompanying course paper.
 
-The plug-in applies a 3x3 Gaussian blur convolution kernel to an image.
+## Overview
 
-The filter uses the following kernel:
+The plug-in applies a Gaussian blur using the following 3×3 convolution kernel:
 
-```text
-1 2 1
-2 4 2   / 16
-1 2 1
-```
+\[
+K = \frac{1}{16}
+\begin{bmatrix}
+1 & 2 & 1 \\
+2 & 4 & 2 \\
+1 & 2 & 1
+\end{bmatrix}
+\]
 
-## Project Structure
+The filter is designed for the classic Adobe Photoshop Filter Plug-in API and is implemented in C++ using the Adobe Photoshop C++ SDK.
 
-- `win/` — Windows implementation and Visual Studio project.
-- `mac/` — macOS implementation and Xcode project.
+## Repository Contents
 
-Both platform projects share the same image-processing core.
+| Directory | Description |
+|---|---|
+| `GaussianBlur_Windows/` | Windows project for Visual Studio. Intended output: `.8bf` plug-in. |
+| `GaussianBlur_MacOS/` | macOS project for Xcode. Intended output: `.plugin` bundle. |
+| `docs/` | Course paper in PDF format. |
+
+Both platform projects contain the image-processing core, plug-in integration code, PiPL metadata, and tests.
+
+## Course Paper
+
+The repository also includes the written course project:
+
+[**Read the course paper (PDF)**](docs/course-paper.pdf)
 
 ## Technologies
 
 - C++
 - Adobe Photoshop Classic Filter Plug-in API
-- Visual Studio
-- Xcode
+- Adobe Photoshop C++ SDK
+- Microsoft Visual Studio
+- Apple Xcode
+- CMake-independent test scripts
 
-## SDK
+## Getting Started
 
-The Adobe Photoshop SDK is not included in this repository. It must be obtained separately and configured for the corresponding platform project.
+Choose the project for your target platform:
+
+- [Windows — build instructions](GaussianBlur_Windows/README_Windows.md)
+- [macOS — build instructions](GaussianBlur_MacOS/README_macOS.md)
+
+The Adobe Photoshop SDK is not included in this repository. It must be obtained separately and configured before building the plug-in.
+
+## Verification Status
+
+The image-processing core includes independent tests. However, the platform-specific projects have not been verified through complete native builds and execution inside Adobe Photoshop.
+
+In particular, the Windows build requires verification in Visual Studio, while the macOS build requires verification in Xcode on a Mac.
 
 ## Notes
 
-The project contains source code, build configurations, resources, and independent tests. Photoshop runtime compatibility and platform-specific builds require separate verification.
+This repository contains source code, project files, resources, tests, and documentation. Compiled plug-in binaries are not included.
