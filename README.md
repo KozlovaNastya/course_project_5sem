@@ -55,7 +55,7 @@ The Adobe Photoshop SDK is not included in this repository. It must be obtained 
 
 ## Verification Status
 
-The image-processing core includes independent tests. However, the platform-specific projects have not been verified through complete native builds and execution inside Adobe Photoshop.
+The image-processing core includes independent tests.
 
 In particular, the Windows build requires verification in Visual Studio, while the macOS build requires verification in Xcode on a Mac.
 
