@@ -1,97 +1,139 @@
-# Gaussian Blur 3×3 — фильтр Photoshop, сборка для Windows
+# Gaussian Blur 3×3 — Windows
 
-Записка к архиву. Это проект классического фильтра Photoshop (`.8bf`) на C++ по Adobe Photoshop C++ SDK:
-размытие по Гауссу ядром 3×3
+Windows implementation of the classic Adobe Photoshop Filter Plug-in using C++ and the Adobe Photoshop C++ SDK.
 
+The project is configured for **Microsoft Visual Studio** and is intended to produce a Photoshop filter plug-in with the `.8bf` extension.
+
+## Features
+
+- 3×3 Gaussian blur convolution.
+- Classic Photoshop Filter Plug-in API integration.
+- Image-processing core separated from Photoshop-specific code.
+- Tile-based image processing.
+- Independent tests that do not require Photoshop.
+
+The convolution kernel is:
+
+\[
+K = \frac{1}{16}
+\begin{bmatrix}
+1 & 2 & 1 \\
+2 & 4 & 2 \\
+1 & 2 & 1
+\end{bmatrix}
+\]
+
+## Project Structure
+
+```text
+GaussianBlur_Windows/
+├── GaussianBlur.sln
+├── GaussianBlur.vcxproj
+├── PhotoshopSdk.props
+├── README_Windows.md
+├── src/
+│   ├── GaussianBlurCore.cpp
+│   ├── GaussianBlurCore.h
+│   └── GaussianBlurPlugin.cpp
+├── win/
+│   └── GaussianBlur.rc
+├── pipl/
+│   └── PiPLs.json
+└── tests/
+    ├── run_tests.bat
+    ├── run_tests.sh
+    └── test_core.cpp
 ```
-          | 1 2 1 |
-K = 1/16 ·| 2 4 2 |
-          | 1 2 1 |
-```
 
-Плагин появится в меню **Filter → Course Project → Gaussian Blur 3x3**. Параметров и диалога у него нет.
+### Main Components
 
-## Что в архиве
-
-| Файл / папка | Назначение |
+| File or Directory | Purpose |
 |---|---|
-| `GaussianBlur.sln`, `GaussianBlur.vcxproj` | Проект Visual Studio (x64, Debug и Release) |
-| `PhotoshopSdk.props` | Путь к SDK (см. ниже) |
-| `src/GaussianBlurCore.h/.cpp` | Алгоритм: свёртка, края, разбиение на тайлы. **Не зависит от SDK** |
-| `src/GaussianBlurPlugin.cpp` | Обвязка под Photoshop: `PluginMain`, селекторы, `FilterRecord` |
-| `pipl/PiPLs.json` | Описание плагина для Photoshop (имя, категория, режимы, точка входа) |
-| `win/GaussianBlur.rc` | Ресурсы: подключает PiPL и информацию о версии |
-| `tests/` | Тесты ядра (Photoshop не нужен) |
+| `GaussianBlur.sln` | Visual Studio solution. |
+| `GaussianBlur.vcxproj` | Project configuration and build settings. |
+| `PhotoshopSdk.props` | Locates the Adobe Photoshop SDK. |
+| `src/GaussianBlurCore.cpp` | Implementation of the Gaussian blur algorithm. |
+| `src/GaussianBlurCore.h` | Declarations and interface of the image-processing core. |
+| `src/GaussianBlurPlugin.cpp` | Photoshop plug-in entry point and Filter Plug-in API integration. |
+| `win/GaussianBlur.rc` | Windows resource file. |
+| `pipl/PiPLs.json` | Plug-in metadata, including its name, category, supported modes, and entry point. |
+| `tests/` | Independent tests for the image-processing core. |
 
-Сам **Photoshop SDK в архив не входит** — это ваш `photoshop-cpp-sdk-main.zip`, его нужно распаковать отдельно.
+## Requirements
 
-## Требования
+- Windows 10 or Windows 11 (x64).
+- Microsoft Visual Studio 2019 or newer.
+- Desktop development with C++ workload.
+- Adobe Photoshop C++ SDK (`pluginsdk` directory).
+- A compatible 64-bit Adobe Photoshop installation for plug-in runtime testing.
 
-- Windows 10/11 x64, Visual Studio 2019 или новее с компонентом «Разработка классических приложений на C++» (Windows SDK подтянется вместе с ним).
-- Распакованный `photoshop-cpp-sdk-main` (нужна только папка `pluginsdk`).
-- Photoshop x64, который читает **JSON PiPL**: SDK из вашего архива описывает плагины именно так (`PiPLs.json`), без `.r`-файлов. Если плагин не появился в меню, первым делом проверьте версию Photoshop.
+The Adobe Photoshop SDK is not included in this repository.
 
-## Сборка
+## SDK Configuration
 
-1. Распакуйте архивы рядом, чтобы получилось так:
-   ```
-   любая_папка\
-     photoshop-cpp-sdk-main\pluginsdk\...
-     GaussianBlur_Windows\GaussianBlur.sln
-   ```
-   Если SDK лежит в другом месте, задайте переменную окружения `PHOTOSHOP_SDK_DIR` (путь к папке `pluginsdk`) или передайте `/p:PhotoshopSdkDir=...`.
-2. Откройте `GaussianBlur.sln`, выберите **Release | x64**, **Сборка → Собрать решение**.
-   Из командной строки (x64 Native Tools Command Prompt):
-   ```
-   msbuild GaussianBlur.sln /p:Configuration=Release /p:Platform=x64
-   ```
-3. Результат: `build\x64\Release\GaussianBlur.8bf`.
+By default, the project expects the SDK at:
 
-Если SDK не найден, сборка остановится с понятным сообщением. Набор инструментов (v142/v143/…) берётся тот, что по умолчанию в вашей Visual Studio. В Release используется статическая CRT, поэтому Visual C++ Redistributable на целевой машине не нужен.
+```text
+../photoshop-cpp-sdk-main/pluginsdk
+```
 
-## Установка и запуск
+relative to the project directory.
 
-1. Закройте Photoshop.
-2. Скопируйте `GaussianBlur.8bf` в папку `Plug-ins` вашего Photoshop, например
-   `C:\Program Files\Adobe\Adobe Photoshop <версия>\Plug-ins\` (нужны права администратора). Подпапку лучше создать отдельную.
-3. Запустите Photoshop → **Filter → Course Project → Gaussian Blur 3x3**.
+If the SDK is stored elsewhere, configure the `PHOTOSHOP_SDK_DIR` environment variable with the full path to the `pluginsdk` directory.
 
-## Как это работает
+Alternatively, pass the path directly to MSBuild:
 
-- Photoshop отдаёт изображение по кускам (тайлам). Чтобы на границах кусков не было швов, для каждого тайла запрашивается входной прямоугольник на 1 пиксель больше выходного во все стороны. Соседи берутся из самого изображения, а не «из соседнего тайла».
-- На краях изображения используется повтор крайнего пикселя (edge replication): Photoshop делает это сам (`inputPadding`), а если не умеет — это делает ядро.
-- Каналы обрабатываются по одному, поэтому расход памяти небольшой. Поддерживаются 8, 16 и 32 бита на канал; Bitmap и Indexed не поддерживаются.
-- Целочисленные вычисления без промежуточного округления: `(сумма + 8) >> 4`. Для float — умножение на 1/16.
-- Выделение применяет сам Photoshop: плагин блюрит прямоугольник выделения, используя реальные соседние пиксели за его границей.
-- Поддержка 32-битных координат (большие документы) включена; на случай старого хоста есть запасной путь на 16-битных.
+```bat
+msbuild GaussianBlur.sln /p:PhotoshopSdkDir="C:\path\to\pluginsdk"
+```
 
-## Что проверено, а что нет
+## Building
 
-Проверено (в среде без Windows и без Photoshop):
+1. Open `GaussianBlur.sln` in Visual Studio.
+2. Select the `Release` configuration.
+3. Select the `x64` platform.
+4. Build the solution.
 
-- **Ядро** — 63 956 проверок, 0 ошибок (g++, `-fsanitize=address,undefined`): совпадение с эталонной прямой формулой для 8/16/32 бит; известный результат на импульсе; константное изображение и максимумы не переполняются; края; изображения 1×1, 1×N, N×1.
-- **Швы между тайлами** — имитация Photoshop (запрос с отступом, нестандартные `rowBytes`/`colBytes`, невыровненные буферы, тайлы от 1×1 до 1000×1000, с выделением и без): результат побитово совпадает с обработкой всего кадра за один раз.
-- `PluginMain` проходит проверку синтаксиса против настоящих заголовков SDK из вашего архива (с заглушкой `windows.h`), ошибок нет.
-- `PiPLs.json`: все ключи есть в `pipl-schema.json` из SDK, обязательные поля заполнены.
+The expected output is:
 
-**Не проверено** — это нужно сделать у себя:
+```text
+build/x64/Release/GaussianBlur.8bf
+```
 
-- Сборка именно в MSVC (`.vcxproj`, `.rc`) — я их писал по образцу проектов SDK, но не запускал.
-- Загрузка и работа в самом Photoshop: появление в меню, 16/32-бит, слои с прозрачностью, выделения, отмена по Esc.
+The actual output location may depend on the project configuration.
 
-Запустить тесты ядра у себя: `tests\run_tests.bat` (из x64 Native Tools Command Prompt). Ожидаемый итог: `63956 checks, 0 failed`.
+## Running Tests
 
-## Что стоит проверить в Photoshop первым делом
+The image-processing core can be tested independently of Photoshop.
 
-1. Фильтр на обычном RGB 8 бит: на однотонной заливке картинка не меняется, на резкой границе появляется лёгкое смягчение.
-2. Большое изображение (например, 8000×6000): не должно быть квадратных швов.
-3. Выделение: за его границей пиксели не меняются, на самой границе нет «ступеньки».
-4. Слой с прозрачностью: прозрачность размывается вместе с цветом (как у штатного Gaussian Blur); если вокруг краёв видна «кайма», дело в режиме обработки полупрозрачных пикселей (`InWhiteMat`/`OutWhiteMat` в `PiPLs.json`).
+Run the test script from an x64 Native Tools Command Prompt:
 
-## Известные ограничения
+```bat
+tests\run_tests.bat
+```
 
-- Только x64. Для Windows ARM64 нужно добавить конфигурацию в проект.
-- Фиксированное ядро 3×3, без радиуса и без диалога.
-- Нет скриптинга и записи в Actions (у плагина нет терминологии/дескрипторов).
-- Дополнительные альфа-каналы документа обрабатываются только если Photoshop передал их среди выбранных каналов.
-- Версии компонента в `PiPLs.json` (26.1.0) скопированы из примеров SDK.
+The expected result documented by the project is:
+
+```text
+63956 checks, 0 failed
+```
+
+## Installation
+
+After a successful build:
+
+1. Close Adobe Photoshop.
+2. Copy `GaussianBlur.8bf` into the Photoshop `Plug-ins` directory.
+3. Start Photoshop.
+4. Locate the filter under:
+
+```text
+Filter → Course Project → Gaussian Blur 3x3
+```
+
+The filter does not provide a configuration dialog or adjustable radius.
+
+## Verification Status
+
+The image-processing core has independent test coverage. The Visual Studio build and execution inside Adobe Photoshop on Windows still require verification in a native Windows environment.
+
