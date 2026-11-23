@@ -1,117 +1,145 @@
-# Gaussian Blur 3×3 — фильтр Photoshop, сборка для macOS
+# Gaussian Blur 3×3 — macOS
 
-Записка к архиву. Это тот же классический фильтр Photoshop на C++, что и в `GaussianBlur_Windows.zip`
-(размытие по Гауссу ядром 3×3, веса 1 2 1 / 2 4 2 / 1 2 1, делённые на 16), только с проектом Xcode
-и итоговым форматом **`.plugin`** (bundle). В меню: **Filter → Course Project → Gaussian Blur 3x3**.
-Параметров и диалога нет.
+macOS implementation of the classic Adobe Photoshop Filter Plug-in using C++ and the Adobe Photoshop C++ SDK.
 
-## Что в сборке
+The project is configured for **Apple Xcode** and is intended to produce a Photoshop filter plug-in bundle with the `.plugin` extension.
 
-| Файл / папка | Назначение |
+## Features
+
+- 3×3 Gaussian blur convolution.
+- Classic Photoshop Filter Plug-in API integration.
+- Image-processing core shared with the Windows implementation.
+- Tile-based image processing.
+- Independent tests that do not require Photoshop.
+- Universal build configuration for Apple Silicon (`arm64`) and Intel (`x86_64`).
+
+The convolution kernel is:
+
+\[
+K = \frac{1}{16}
+\begin{bmatrix}
+1 & 2 & 1 \\
+2 & 4 & 2 \\
+1 & 2 & 1
+\end{bmatrix}
+\]
+
+## Project Structure
+
+```text
+GaussianBlur_MacOS/
+├── GaussianBlur.xcodeproj/
+├── PhotoshopSdk.xcconfig
+├── README_macOS.md
+├── src/
+│   ├── GaussianBlurCore.cpp
+│   ├── GaussianBlurCore.h
+│   └── GaussianBlurPlugin.cpp
+├── mac/
+│   └── Info.plist
+├── pipl/
+│   └── PiPLs.json
+└── tests/
+    ├── run_tests.sh
+    └── test_core.cpp
+```
+
+### Main Components
+
+| File or Directory | Purpose |
 |---|---|
-| `GaussianBlur.xcodeproj` | Проект Xcode (цель `GaussianBlur`, конфигурации Debug и Release) |
-| `PhotoshopSdk.xcconfig` | Путь к SDK (см. ниже) |
-| `mac/Info.plist` | Описание bundle (тип `8BFM` — фильтр Photoshop) |
-| `pipl/PiPLs.json` | PiPL: имя, категория, режимы, точки входа для Windows и macOS (arm64/x86_64) |
-| `src/GaussianBlurCore.h/.cpp` | Алгоритм: свёртка, края, тайлы. Не зависит от SDK |
-| `src/GaussianBlurPlugin.cpp` | `PluginMain`, селекторы, работа с `FilterRecord` |
-| `tests/` | Тесты ядра (Photoshop не нужен) |
+| `GaussianBlur.xcodeproj/` | Xcode project and build configurations. |
+| `PhotoshopSdk.xcconfig` | SDK path and build configuration settings. |
+| `src/GaussianBlurCore.cpp` | Implementation of the Gaussian blur algorithm. |
+| `src/GaussianBlurCore.h` | Declarations and interface of the image-processing core. |
+| `src/GaussianBlurPlugin.cpp` | Photoshop plug-in entry point and Filter Plug-in API integration. |
+| `mac/Info.plist` | macOS plug-in bundle metadata. |
+| `pipl/PiPLs.json` | Plug-in metadata, including its name, category, supported modes, and entry points. |
+| `tests/` | Independent tests for the image-processing core. |
 
-**Общая логика с Windows:** `src/` и `pipl/` — те же файлы, что в Windows-архиве; платформенное различие
-только в окне «About» (`#if _WIN32` / `#elif __APPLE__` в `GaussianBlurPlugin.cpp`).
+## Requirements
 
-Сам **Photoshop SDK в архив не входит** — это ваш `photoshop-cpp-sdk-main.zip`, его нужно распаковать отдельно.
+- macOS.
+- Apple Xcode with Command Line Tools.
+- Adobe Photoshop C++ SDK (`pluginsdk` directory).
+- A compatible Adobe Photoshop installation for plug-in runtime testing.
 
-## Требования
+The Adobe Photoshop SDK is not included in this repository.
 
-- macOS и Xcode с Command Line Tools (`xcode-select --install`). Заголовки SDK подключают системные заголовки
-  Apple (`MacTypes.h`, `CoreServices`), поэтому нужен Xcode с macOS SDK. Проект рассчитан на современный Xcode.
-- Распакованный `photoshop-cpp-sdk-main` (нужна только папка `pluginsdk`).
-- Photoshop, который читает **JSON PiPL**: SDK из вашего архива описывает плагины именно так, без `.r`-файлов.
-  Если плагин не появился в меню, первым делом проверьте версию Photoshop.
+## SDK Configuration
 
-## Сборка
+By default, the project expects the SDK at:
 
-1. Распакуйте архивы рядом:
-   ```
-   любая_папка/
-     photoshop-cpp-sdk-main/pluginsdk/...
-     GaussianBlur_macOS/GaussianBlur.xcodeproj
-   ```
-   Если SDK лежит в другом месте, создайте рядом с проектом файл `PhotoshopSdk.local.xcconfig`:
-   ```
-   PHOTOSHOP_SDK_DIR = /полный/путь/к/photoshop-cpp-sdk-main/pluginsdk
-   ```
-   (или передайте `PHOTOSHOP_SDK_DIR=...` в командной строке `xcodebuild`).
-2. Откройте `GaussianBlur.xcodeproj`, выберите схему **GaussianBlur**, конфигурацию **Release**, **Product → Build**.
-   Из терминала:
-   ```
-   xcodebuild -project GaussianBlur.xcodeproj -target GaussianBlur -configuration Release
-   ```
-3. Результат: `build/Release/GaussianBlur.plugin`.
-
-Если SDK не найден, первая фаза сборки («Check Photoshop SDK») остановит её понятным сообщением.
-
-### Настройки сборки, которые выбрал я (проверьте под свою среду)
-
-| Настройка | Значение | Комментарий |
-|---|---|---|
-| `ARCHS` | `$(ARCHS_STANDARD)` | universal: arm64 + x86_64 (в PiPL заданы обе точки входа) |
-| `MACOSX_DEPLOYMENT_TARGET` | 11.0 | в примерах SDK 10.13; для arm64 всё равно нужна ≥ 11.0 |
-| `CLANG_CXX_LANGUAGE_STANDARD` | gnu++17 | |
-| `CODE_SIGN_IDENTITY` | `-` (ad-hoc) | позволяет собрать без аккаунта разработчика |
-| `PRODUCT_BUNDLE_IDENTIFIER` | `com.example.GaussianBlur3x3` | замените на свой |
-| `WRAPPER_EXTENSION` / `PLUGIN_TYPE` | `plugin` / `8BFM` | как в примерах SDK |
-| `GCC_TREAT_WARNINGS_AS_ERRORS` | NO | в примерах SDK YES; заголовки SDK дают предупреждения на современных компиляторах |
-
-Линкуется только `CoreFoundation` (для окна About). Устаревший Carbon, который подключают примеры SDK, нужен им
-для диалоговых утилит; этому фильтру — нет.
-
-## Установка и запуск
-
-1. Закройте Photoshop.
-2. Скопируйте `GaussianBlur.plugin` в `Plug-ins` вашего Photoshop, например
-   `/Applications/Adobe Photoshop <версия>/Plug-ins/` (лучше в отдельную подпапку).
-3. Если файл пришёл с другой машины или из загрузки, снимите карантин: `xattr -dr com.apple.quarantine GaussianBlur.plugin`.
-   Для передачи другим людям плагин нужно подписать Developer ID и, как правило, нотаризовать — ad-hoc подписи достаточно только для локальных проверок.
-4. Запустите Photoshop → **Filter → Course Project → Gaussian Blur 3x3**.
-
-Быстрая проверка результата сборки:
-```
-ls build/Release/GaussianBlur.plugin/Contents/Resources           # должен быть PiPLs.json
-lipo -info build/Release/GaussianBlur.plugin/Contents/MacOS/GaussianBlur   # arm64 x86_64
-nm -gU build/Release/GaussianBlur.plugin/Contents/MacOS/GaussianBlur | grep PluginMain   # _PluginMain
-codesign -dv build/Release/GaussianBlur.plugin
+```text
+../photoshop-cpp-sdk-main/pluginsdk
 ```
 
-## Как это работает
+relative to the project directory.
 
-То же, что в Windows-версии: для каждого тайла запрашивается входной прямоугольник на 1 пиксель больше выходного
-(поэтому на стыках тайлов нет швов), края изображения — повтор крайнего пикселя, каналы обрабатываются по одному,
-учитываются `rowBytes`/`colBytes`, поддерживаются 8/16/32 бита на канал, Bitmap и Indexed не поддерживаются.
-Выделение применяет сам Photoshop. Подробности — в комментариях `src/GaussianBlurCore.h` и `src/GaussianBlurPlugin.cpp`.
+If the SDK is stored elsewhere, create a local configuration file named `PhotoshopSdk.local.xcconfig` in the project directory:
 
-## Что проверено, а что нет
+```text
+PHOTOSHOP_SDK_DIR = /full/path/to/photoshop-cpp-sdk-main/pluginsdk
+```
 
-Проверено (на Linux, без Mac и без Photoshop):
+This local file is intended for machine-specific configuration and should not be committed to the repository.
 
-- **Ядро** — 63 956 проверок, 0 ошибок (с `-fsanitize=address,undefined`): совпадение с прямой формулой для 8/16/32 бит,
-  края, швы между тайлами (имитация запросов Photoshop с нестандартными `rowBytes`), выделение внутри изображения.
-- `pbxproj` разобран независимым парсером: структура корректна, все ссылки на объекты существуют, каждый файл в группе,
-  в цели есть фазы Sources / Frameworks / Resources / проверка SDK. `Info.plist` и `PiPLs.json` корректны (`PiPLs.json` проверен по `pipl-schema.json` из SDK).
-- macOS-ветка `PluginMain` прошла проверку синтаксиса против настоящих заголовков SDK из вашего архива. Системные заголовки Apple
-  при этом были **заменены заглушками**, так что это проверка только моего кода и его стыка с SDK.
+## Building
 
-**Не проверено** (требует Mac / Photoshop):
+1. Open `GaussianBlur.xcodeproj` in Xcode.
+2. Select the `GaussianBlur` scheme.
+3. Choose the `Release` configuration.
+4. Build the project using **Product → Build**.
 
-- Сборка в Xcode: проект написан вручную по образцу `hidden.xcodeproj` из SDK, но ни разу не открывался в Xcode.
-  Возможны мелочи (версия Xcode, предупреждения заголовков SDK, подпись).
-- Загрузка и работа в Photoshop на macOS: появление в меню, 16/32 бита, слои с прозрачностью, выделения, отмена.
+Alternatively, use the command line:
 
-Тесты ядра на Mac: `tests/run_tests.sh`. Ожидаемый итог: `63956 checks, 0 failed`.
+```bash
+xcodebuild \
+  -project GaussianBlur.xcodeproj \
+  -target GaussianBlur \
+  -configuration Release
+```
 
-## Известные ограничения
+The expected output is:
 
-- Фиксированное ядро 3×3, без радиуса и диалога; нет скриптинга и записи в Actions.
-- Подпись только ad-hoc; для распространения нужен Developer ID и нотаризация.
-- Версии компонента в `PiPLs.json` (26.1.0) скопированы из примеров SDK.
+```text
+build/Release/GaussianBlur.plugin
+```
+
+The exact output location may depend on the Xcode build settings.
+
+## Running Tests
+
+The image-processing core can be tested independently of Photoshop.
+
+Run:
+
+```bash
+tests/run_tests.sh
+```
+
+The expected result documented by the project is:
+
+```text
+63956 checks, 0 failed
+```
+
+## Installation
+
+After a successful build:
+
+1. Close Adobe Photoshop.
+2. Copy `GaussianBlur.plugin` into the Photoshop `Plug-ins` directory.
+3. Start Photoshop.
+4. Locate the filter under:
+
+```text
+Filter → Course Project → Gaussian Blur 3x3
+```
+
+The filter does not provide a configuration dialog or adjustable radius.
+
+## Verification Status
+
+The image-processing core has independent test coverage. The Xcode build and execution inside Adobe Photoshop on macOS still require verification on a Mac.
+
